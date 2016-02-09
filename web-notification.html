@@ -1,0 +1,271 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+    <web-notification></web-notification>
+
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id="web-notification">
+  <template>
+    <style>
+    </style>
+  </template>
+  <script>
+    (function(window) {
+    var PERMISSION_GRANTED = 'granted';
+    var PERMISSION_DENIED = 'denied';
+    
+    var seqGen = function () {
+      var i = 0;
+      return function () {
+        return i++;
+      };
+    };
+
+    var seq = seqGen();
+
+    Polymer({
+      is: 'web-notification',
+
+      properties: {
+        supported: {
+          type: Boolean,
+          value: false,
+          readOnly: true,
+          notify: true
+        },
+        granted: {
+          type: Boolean,
+          value: false,
+          readOnly: true,
+          notify: true,
+          observer: '_onGrantedChanged',
+        },
+        autoAskPermission: {
+          type: Boolean,
+          value: false
+        },
+        askAgain: {
+          type: Boolean,
+          value: true
+        },
+        timeout: {
+          type: Number,
+          value: 2000,
+        },
+        disableActiveWindow: {
+          type: Boolean,
+          value: false
+        },
+      },
+      
+      _onGrantedChanged: function (newValue) {
+        if (newValue) {
+          this._fire_permissionGranted();
+        } else {
+          this._fire_permissionDenied();
+        }
+      },
+
+      // Element Lifecycle
+      
+      created: function () {
+      },
+
+      ready: function() {
+        // `ready` is called after all elements have been configured, but
+        // propagates bottom-up. This element's children are ready, but parents
+        // are not.
+        //
+        // This is the point where you should make modifications to the DOM (when
+        // necessary), or kick off any processes the element wants to perform.
+        if (('Notification' in window) && window.Notification) {
+          this._setSupported(true);
+          if (window.Notification.permission === PERMISSION_GRANTED) {
+            this._setGranted(true);
+          }
+        } else {
+          this._setSupported(false);
+        }
+        
+        // Do not save Notification instance in state
+        this._notifications = {};
+        this.windowFocus = true;
+      },
+
+      attached: function() {
+        this._isAttached = true;
+
+        // `attached` fires once the element and its parents have been inserted
+        // into a document.
+        //
+        // This is a good place to perform any work related to your element's
+        // visual state or active behavior (measuring sizes, beginning animations,
+        // loading resources, etc).
+        if (this.disableActiveWindow) {
+          if (window.addEventListener){
+            window.addEventListener('focus', this._onWindowFocus.bind(this));
+            window.addEventListener('blur', this._onWindowBlur.bind(this));
+          } else if (window.attachEvent){
+            window.attachEvent('focus', this._onWindowFocus.bind(this));
+            window.attachEvent('blur', this._onWindowBlur.bind(this));
+          }
+        }
+        
+        if (!this.supported) {
+          this._fire_notSupported();
+        } else if (this.granted) {
+          this._fire_permissionGranted();
+        } else {
+          if (window.Notification.permission === PERMISSION_DENIED){
+            if (this.askAgain){
+              this._autoAskPermission();
+            } else {
+              this._fire_permissionDenied();
+            }
+          } else {
+            this._autoAskPermission();
+          }
+        }      
+      },
+
+      detached: function() {
+        // The analog to `attached`, `detached` fires when the element has been
+        // removed from a document.
+        //
+        // Use this to clean up anything you did in `attached`.
+        if (this.disableActiveWindow) {
+          if (window.removeEventListner){
+            window.removeEventListener('focus', this._onWindowFocus.bind(this));
+            window.removeEventListener('blur', this._onWindowBlur.bind(this));
+          } else if (window.detachEvent){
+            window.detachEvent('focus', this._onWindowFocus.bind(this));
+            window.detachEvent('blur', this._onWindowBlur.bind(this));
+          }
+        }
+
+        this._isAttached = false;
+      },
+
+      // Element Behavior
+
+      askForPermission: function () {
+        var that = this;
+        
+        window.Notification.requestPermission(function (permission) {
+          var result = (permission === PERMISSION_GRANTED);          
+          that._setGranted(result);
+        });
+      },
+      
+      notify: function (title, options, onShow, onClick, onClose, onError) {
+        var doNotShowOnActiveWindow = (this.disableActiveWindow && this.windowFocus);
+        
+        if (!doNotShowOnActiveWindow) {
+          var that = this;
+          
+          var key = null;
+          
+          if (options) {
+            key = options.tag;
+          }
+
+          if (typeof key !== 'string') {
+            key = 'web-notification-' + seq();
+          }
+
+          if (!this._notifications[key]) {
+            
+            var n = new window.Notification(title, options);
+            
+            n.onshow = function (e) {
+              if (onShow) {
+                onShow(e, key);
+              }
+              
+              setTimeout(function () {
+                that.closeNotification(key);
+              }, that.timeout);
+            };
+            
+            if (onClick) {
+              n.onclick = function (e) { 
+                onClick(e, key); 
+              };
+            }
+            
+            n.onclose = function (e) { 
+              if (onClose) {
+                  onClose(e, key); 
+              }
+              that._removeNotificationFromDictionary(key);
+            };
+            
+            n.onerror = function (e) { 
+              if (onError) {
+                  onError(e, key); 
+              }
+              console.error('[ERROR] web-notification:', e);
+            };
+
+            this._notifications[key] = n;
+          }
+  
+          return key;
+        }
+        
+        return null;
+      },
+      
+      closeNotification (key) {
+        if (this._notifications[key] && typeof this._notifications[key].close === 'function') {
+          this._notifications[key].close();
+        }
+      },
+
+      _removeNotificationFromDictionary: function (key) {
+        delete this._notifications[key];
+      },
+      
+      _autoAskPermission(){
+        if (!this.autoAskPermission) {
+          return;
+        }
+        this.askForPermission();
+      },
+            
+      _onWindowFocus(){
+        this.windowFocus = true;
+      },
+
+      _onWindowBlur(){
+        this.windowFocus = false;
+      },
+
+      _fire_notSupported: function () {
+        if (this._isAttached) {
+          this.fire('not-supported');
+        }
+      },
+
+      _fire_permissionGranted: function () {
+        if (this._isAttached) {
+          this.fire('permission-granted');
+        }
+      },
+      
+      _fire_permissionDenied: function () {
+        if (this._isAttached) {
+          this.fire('permission-denied');
+        }
+      },
+    });
+  })(window);
+  </script>
+</dom-module>
