@@ -1,18 +1,19 @@
 {
   "name": "web-notification",
-  "version": "1.0.6",
+  "version": "1.0.0",
   "authors": [
-    "Anonymous <anonymous@example.com>"
+    "Vinicius Patrinhani <patrinhani@ciandt.com>"
   ],
-  "description": "An element providing a solution to no problem in particular.",
+  "description": "A core element to interact with the Web Notifications API.",
   "keywords": [
     "web-component",
     "polymer",
-    "seed"
+    "web-notification",
+    "notification"
   ],
   "main": "web-notification.html",
   "license": "http://polymer.github.io/LICENSE.txt",
-  "homepage": "https://github.com/<USERNAME>/seed-element/",
+  "homepage": "https://github.com/WebCoreElements/web-notification/",
   "ignore": [
     "/.*",
     "/test/"
