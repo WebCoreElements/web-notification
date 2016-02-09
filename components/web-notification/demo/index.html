@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>web-notification Demo</title>
+    <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../paper-material/paper-material.html">
+    <link rel="import" href="../web-notification.html">
+    <style is="custom-style" include="demo-pages-shared-styles">
+      paper-material {
+        padding-top: 16px;  
+        padding-bottom: 16px;  
+      }
+      
+      .component-label-bindings {
+        margin-top: 24px;
+        margin-bottom: 24px;
+        padding: 16px;
+        -moz-box-shadow:    inset 0 0 10px #000000;
+        -webkit-box-shadow: inset 0 0 10px #000000;
+        box-shadow:         inset 0 0 10px #000000;
+      }
+      
+      .component-label-bindings > label {
+        display: block;
+        margin-bottom: 16px;
+      }
+      
+      .component-label-bindings > label:last-child {
+        margin-bottom: 0px;
+      }
+    </style>    
+    <script>
+      var defaultNotificationOptions = function () {
+        return {
+          dir: 'auto', //The direction in which to display the notification. It defaults to auto, which just adopts the browser's language setting behaviour, but you can override that behaviour by setting values of ltr and rtl (although most browsers seem to ignore these settings.)
+          lang: null, //The notification's language, as specified using a DOMString representing a BCP 47 language tag. See the Sitepoint ISO 2 letter language codes page for a simple reference.
+          body:  null, //A DOMString representing the body text of the notification, which will be displayed below the title.
+          tag: null, //A DOMString representing an identifying tag for the notification.
+          icon: null, //A USVString containing the URL of an icon to be displayed as part of the notification.
+          data: null, //Arbitrary data that you want associated with the notification. This can be of any data type.
+          /*
+          The following options are listed in the most up-to-date spec, 
+          but are not supported in any browsers yet. 
+          It is advisable to keep checking back regularly to see if the status of these has updated, 
+          and let us know if you find any out of date information. 
+          */
+          sound: null, //A USVString containing the URL of an audio file to be played when the notification fires.
+          vibrate: null, //A vibration pattern for the device's vibration hardware to emit when the notification fires.
+          renotify: false, //A Boolean specifying whether the user should be notified after a new notification replaces an old one. The default is false, which means they won't be notified.
+          silent: false, //A Boolean specifying whether the notification should be silent, i.e. no sounds or vibrations should be issued, regardless of the device settings. The default is false, which means it won't be silent.
+          noscreen: false, //A Boolean specifying whether the notification firing should enable the device's screen or not. The default is false, which means it will enable the screen.
+          sticky: false,//A Boolean specifying whether the notification should be 'sticky', i.e. not easily clearable by the user. The default is false, which means it won't be sticky.
+        };
+      };
+    </script>
+  </head>
+  <body unresolved>
+    <div class="vertical-section-container">
+      <h3>An example of <code>&lt;web-notification&gt;</code>:</h3>
+      <demo-snippet>
+        <template>
+          <template is="dom-bind" id="exmpl01">
+            <script>              
+              var exmpl01 = document.getElementById('exmpl01');
+              
+              exmpl01._onWebNotificationActivated = function (e) {
+                console.log('_onWebNotificationActivated', e);
+              };
+
+              exmpl01._onWebNotificationNotSupported = function (e) {
+                console.log('_onWebNotificationNotSupported', e);
+              };
+
+              exmpl01._onWebNotificationPermissionGranted = function (e) {
+                console.log('_onWebNotificationPermissionGranted', e);
+              };
+
+              exmpl01._onWebNotificationPermissionDenied = function (e) {
+                console.log('_onWebNotificationPermissionDenied', e);
+              };
+              
+              exmpl01._onRequestNotificatoinPermission = function (e) {
+                var webNot = document.querySelector('#webNotification');
+                
+                webNot.askForPermission();
+              };
+
+              exmpl01._onShowNotification = function (e) {
+                var webNot = document.querySelector('#webNotification');
+                
+                var notifOpt = defaultNotificationOptions();
+                
+                notifOpt.icon = 'notification_icon.png';
+                notifOpt.body = 'Here is the notification without delay.';
+                notifOpt.data = { myData: 'some data to send with the notification.' };
+                
+                var notifKey = webNot.notify('Notification Title', notifOpt);
+                
+                console.log('_onShowNotification: notifKey:', notifKey, notifOpt.data);
+              };
+
+              exmpl01._onShowNotificationDelay = function (e) {
+                var webNot = document.querySelector('#webNotification');
+                
+                var notifOpt = defaultNotificationOptions();
+                
+                notifOpt.icon = 'notification_icon.png';
+                notifOpt.body = 'Here is the notification WITH DELAY.';
+                
+                setTimeout(function () {
+                  var notifKey = webNot.notify('Notification WITH DELAY Title', notifOpt);
+                  
+                  console.log('_onShowNotificationDelay: notifKey:', notifKey, notifOpt.data);
+                }, 2000);
+              };
+            </script>
+
+            <section class="component-label-bindings">
+              <label>Web Notification is supported ? : [[webNotifSupported]]</label>
+              <label>Web Notification is granted ? : [[webNotifGranted]]</label>
+            </section>
+
+            <button on-click="_onRequestNotificatoinPermission">Ask for Permission</button>
+            <button on-click="_onShowNotification">Show Notification</button>
+            <button on-click="_onShowNotificationDelay">Show Notification in 2s</button>
+
+            <web-notification id="webNotification"
+              supported="{{webNotifSupported}}"
+              granted="{{webNotifGranted}}"
+              on-not-supported="_onWebNotificationNotSupported"
+              on-permission-granted="_onWebNotificationPermissionGranted"
+              on-permission-denied="_onWebNotificationPermissionDenied">
+            </web-notification>
+          </template>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <script>
+      window.addEventListener('WebComponentsReady', function() {    
+        var dynWebNotification = document.createElement('web-notification');
+        
+        console.log('dyn obj: ', dynWebNotification);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "name": "web-notification",
+  "authors": [
+    "Vinicius Patrinhani <patrinhani@ciandt.com>"
+  ],
+  "description": "A core element to interact with the Web Notifications API.",
+  "keywords": [
+    "web-component",
+    "polymer",
+    "web-notification",
+    "notification"
+  ],
+  "main": "web-notification.html",
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "homepage": "https://github.com/WebCoreElements/web-notification/",
+  "ignore": [
+    "/.*",
+    "/test/"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.2.3"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "^3.4.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.3"
+  },
+  "_release": "710d9ebf61",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "710d9ebf61a60f1b738d6110a66fee48d2c78b58"
+  },
+  "_source": "git://github.com/WebCoreElements/web-notification.git",
+  "_target": "master",
+  "_originalSource": "WebCoreElements/web-notification",
+  "_direct": true
+}
