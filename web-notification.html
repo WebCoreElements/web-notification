@@ -223,7 +223,7 @@ Example:
         return null;
       },
       
-      closeNotification (key) {
+      closeNotification: function (key) {
         if (this._notifications[key] && typeof this._notifications[key].close === 'function') {
           this._notifications[key].close();
         }
@@ -233,18 +233,18 @@ Example:
         delete this._notifications[key];
       },
       
-      _autoAskPermission(){
+      _autoAskPermission: function () {
         if (!this.autoAskPermission) {
           return;
         }
         this.askForPermission();
       },
             
-      _onWindowFocus(){
+      _onWindowFocus: function () {
         this.windowFocus = true;
       },
 
-      _onWindowBlur(){
+      _onWindowBlur: function () {
         this.windowFocus = false;
       },
 
