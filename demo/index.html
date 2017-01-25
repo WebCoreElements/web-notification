@@ -83,7 +83,7 @@
                 console.log('_onWebNotificationPermissionDenied', e);
               };
               
-              exmpl01._onRequestNotificatoinPermission = function (e) {
+              exmpl01._onRequestNotificationPermission = function (e) {
                 var webNot = document.querySelector('#webNotification');
                 
                 webNot.askForPermission();
@@ -124,7 +124,7 @@
               <label>Web Notification is granted ? : [[webNotifGranted]]</label>
             </section>
 
-            <button on-click="_onRequestNotificatoinPermission">Ask for Permission</button>
+            <button on-click="_onRequestNotificationPermission">Ask for Permission</button>
             <button on-click="_onShowNotification">Show Notification</button>
             <button on-click="_onShowNotificationDelay">Show Notification in 2s</button>
 
