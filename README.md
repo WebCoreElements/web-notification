@@ -4,7 +4,7 @@ An element providing a starting point for your own reusable Polymer elements.
 
 [DOCS](http://webcoreelements.github.io/web-notification/components/web-notification/)
 
-[DEMO](http://webcoreelements.github.io/web-notification/components/web-notification/demo/index.html)
+[DEMO](https://webcoreelements.github.io/web-notification/components/web-notification/demo/index.html)
 
 ## Dependencies
 
